@@ -1,22 +1,25 @@
 # -*- coding: utf-8 -*-
-"""국민설비 지역별 랜딩페이지 생성기.
-템플릿 + 지역데이터 -> regions/<slug>.html 자동 생성.
-지역 추가/수정 시 REGIONS 에 항목만 넣고 다시 실행하면 됨.
+"""국민설비 지역별 랜딩페이지 생성기 (멀티 도메인).
+템플릿 + 지역데이터 -> 사이트별 폴더에 <slug>.html 자동 생성.
+지역/사이트 추가 시 데이터에 항목만 넣고 다시 실행하면 됨.
+
+사이트:
+  drain2111 (v1 신뢰형, 파랑) -> regions/      : 강남권+강북권+경기 12개
+  drain119  (v3 프리미엄, 초록) -> regions119/   : 새로운 12개 (중복 0)
 """
 import os
 
-# ===== 설정 =====
 CDN = "https://cdn.jsdelivr.net/gh/hihiood/gukmin-landing@main/images/"
 PHONE = "010-7417-2111"
-# 지역 카테고리 허브 도메인 (v1=신뢰형이 올라간 drain2111 을 허브로 사용)
-BASE = "https://drain2111.isweb.co.kr"
-HUB_URL = BASE + "/"
-OUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "regions")
+PHONE_INTL = "10-" + PHONE.split("-", 1)[1]
+ROOT = os.path.dirname(os.path.abspath(__file__))
+
+# 테마 색상 (primary, dark, light-bg)
+THEME_BLUE  = {"prim": "#0b63d6", "dark": "#073e8a", "light": "#e8f1fd"}
+THEME_GREEN = {"prim": "#0f9d58", "dark": "#0b7a44", "light": "#eafaf1"}
 
 # ===== 지역 데이터 =====
-# slug, name(짧은), full(구/시), cluster, intro(지역 맞춤 한 줄), dongs(실제 동)
-REGIONS = [
- # 서울 강남권
+REGIONS_2111 = [
  {"slug":"gangnam","name":"강남","full":"강남구","cluster":"서울 강남권",
   "intro":"역삼·삼성·대치·논현 등 사무실과 음식점이 밀집한 강남구는 주방 싱크대·상가 하수구 막힘이 잦은 지역입니다. 국민설비가 강남구 전역으로 24시간 즉시 출동합니다.",
   "dongs":["역삼동","삼성동","대치동","청담동","신사동","논현동","압구정동","도곡동","개포동","일원동","수서동","세곡동"]},
@@ -26,7 +29,6 @@ REGIONS = [
  {"slug":"songpa","name":"송파","full":"송파구","cluster":"서울 강남권",
   "intro":"잠실·문정·가락 등 대규모 아파트와 상가가 공존하는 송파구는 하수구 역류·정화조 민원이 잦습니다. 송파구 위례까지 24시간 대응합니다.",
   "dongs":["잠실동","문정동","가락동","송파동","석촌동","방이동","오금동","거여동","마천동","풍납동","장지동"]},
- # 서울 강북권
  {"slug":"mapo","name":"마포","full":"마포구","cluster":"서울 강북권",
   "intro":"합정·망원·연남 등 카페·음식점이 빼곡한 마포구는 기름때 싱크대 막힘이 특히 많습니다. 마포구 전역 고압세척으로 즉시 해결합니다.",
   "dongs":["공덕동","아현동","도화동","용강동","대흥동","염리동","신수동","서교동","합정동","망원동","연남동","상암동"]},
@@ -36,7 +38,6 @@ REGIONS = [
  {"slug":"seongdong","name":"성동","full":"성동구","cluster":"서울 강북권",
   "intro":"성수동 상가·공장과 왕십리 주거가 함께 있는 성동구는 업소 배수구·하수구 막힘이 잦습니다. 성동구 전동 24시간 대응합니다.",
   "dongs":["성수동","왕십리","행당동","응봉동","금호동","옥수동","마장동","사근동","송정동","용답동"]},
- # 경기 남부
  {"slug":"bundang","name":"분당","full":"성남시 분당구","cluster":"경기 남부",
   "intro":"정자·서현·판교 등 IT기업과 고층 아파트가 많은 분당은 주방·욕실 배관 막힘과 누수탐지 문의가 많습니다. 분당 전역 30분 내 출동합니다.",
   "dongs":["정자동","서현동","수내동","이매동","야탑동","판교동","백현동","분당동","구미동","금곡동"]},
@@ -46,7 +47,6 @@ REGIONS = [
  {"slug":"bucheon","name":"부천","full":"부천시","cluster":"경기 남부",
   "intro":"중동·상동 상권과 다세대 주택이 밀집한 부천은 변기·싱크대 막힘과 하수구 역류 문의가 많습니다. 부천시 전동 즉시 출동합니다.",
   "dongs":["중동","상동","원미동","심곡동","소사동","역곡동","송내동","오정동","약대동","춘의동"]},
- # 경기북부·인천
  {"slug":"goyang","name":"고양","full":"고양시","cluster":"경기북부·인천",
   "intro":"일산 신도시와 행신·화정 주거지가 넓게 퍼진 고양시는 아파트 하수구·누수 출동이 많습니다. 고양시 일산동·서구 전역 대응합니다.",
   "dongs":["일산동","정발산동","마두동","백석동","화정동","행신동","능곡동","주엽동","대화동","탄현동","식사동"]},
@@ -56,6 +56,50 @@ REGIONS = [
  {"slug":"incheon","name":"인천","full":"인천시","cluster":"경기북부·인천",
   "intro":"부평·구월 구도심과 송도·청라 신도시가 함께 있는 인천은 하수구 막힘·정화조·누수탐지 수요가 폭넓습니다. 인천시 전역 즉시 출동합니다.",
   "dongs":["부평동","구월동","논현동","송도동","청라동","계산동","주안동","서창동","만수동","검단"]},
+]
+
+REGIONS_119 = [
+ {"slug":"guro","name":"구로","full":"구로구","cluster":"서울 서남권",
+  "intro":"구로디지털단지·신도림 상권과 다세대 주택이 밀집한 구로구는 상가 하수구·싱크대 막힘이 잦습니다. 구로구 전역 24시간 즉시 출동합니다.",
+  "dongs":["구로동","신도림동","개봉동","고척동","오류동","항동","가리봉동","천왕동"]},
+ {"slug":"yeongdeungpo","name":"영등포","full":"영등포구","cluster":"서울 서남권",
+  "intro":"여의도 오피스와 영등포 구시가가 공존하는 영등포구는 빌딩 하수관 막힘·누수 진단 수요가 많습니다. 영등포구 전동 빠르게 출동합니다.",
+  "dongs":["영등포동","여의도동","당산동","문래동","양평동","신길동","대림동","도림동"]},
+ {"slug":"dongjak","name":"동작","full":"동작구","cluster":"서울 서남권",
+  "intro":"노량진·사당 학원가와 상도 주거지가 많은 동작구는 변기·하수구 막힘 문의가 잦습니다. 동작구 전역 24시간 대응합니다.",
+  "dongs":["노량진동","상도동","사당동","대방동","신대방동","흑석동"]},
+ {"slug":"gwanak","name":"관악","full":"관악구","cluster":"서울 서남권",
+  "intro":"신림·봉천 원룸촌이 밀집한 관악구는 싱크대·변기 막힘과 누수 문의가 특히 많습니다. 관악구 전동 즉시 출동합니다.",
+  "dongs":["봉천동","신림동","남현동"]},
+ {"slug":"gangseo","name":"강서","full":"강서구","cluster":"서울 서남권",
+  "intro":"마곡 신도시와 화곡 주거지가 넓은 강서구는 아파트·상가 하수구 출동이 많습니다. 강서구 전역 30분 내 출동합니다.",
+  "dongs":["화곡동","등촌동","가양동","발산동","마곡동","염창동","방화동","공항동","우장산동"]},
+ {"slug":"yangcheon","name":"양천","full":"양천구","cluster":"서울 서남권",
+  "intro":"목동 학원가와 아파트가 밀집한 양천구는 주방·욕실 배관 막힘 문의가 많습니다. 양천구 전동 24시간 대응합니다.",
+  "dongs":["목동","신정동","신월동"]},
+ {"slug":"nowon","name":"노원","full":"노원구","cluster":"서울 동북권",
+  "intro":"상계·중계 대단지 아파트가 많은 노원구는 하수구 역류·누수탐지 수요가 높습니다. 노원구 전역 즉시 출동합니다.",
+  "dongs":["상계동","중계동","하계동","공릉동","월계동"]},
+ {"slug":"gwangjin","name":"광진","full":"광진구","cluster":"서울 동북권",
+  "intro":"건대 상권과 자양·구의 주거지가 함께 있는 광진구는 업소·가정 막힘이 모두 잦습니다. 광진구 전동 24시간 출동합니다.",
+  "dongs":["자양동","구의동","광장동","화양동","능동","중곡동"]},
+ {"slug":"anyang","name":"안양","full":"안양시","cluster":"경기 남부",
+  "intro":"평촌 신도시와 안양 구도심이 공존하는 안양시는 하수구 막힘·정화조 출동이 이어집니다. 안양시 전역 즉시 출동합니다.",
+  "dongs":["안양동","평촌동","비산동","관양동","호계동","박달동","석수동"]},
+ {"slug":"ansan","name":"안산","full":"안산시","cluster":"경기 남부",
+  "intro":"고잔·중앙동 상권과 공단이 있는 안산시는 상가·공장 배수구 막힘이 많습니다. 안산시 전역 24시간 대응합니다.",
+  "dongs":["고잔동","중앙동","본오동","사동","상록수","선부동","와동","원곡동"]},
+ {"slug":"gimpo","name":"김포","full":"김포시","cluster":"경기 서부",
+  "intro":"한강신도시(운양·구래)와 구도심이 함께 성장하는 김포시는 신축·노후 배관 출동이 다양합니다. 김포시 전역 즉시 출동합니다.",
+  "dongs":["사우동","풍무동","장기동","운양동","구래동","마산동","고촌","통진"]},
+ {"slug":"namyangju","name":"남양주","full":"남양주시","cluster":"경기 동부",
+  "intro":"다산·별내 신도시가 빠르게 커지는 남양주시는 아파트 하수구·누수 문의가 늘고 있습니다. 남양주시 전역 24시간 출동합니다.",
+  "dongs":["다산동","별내동","평내동","호평동","와부읍","화도읍","진접읍","오남읍"]},
+]
+
+SITES = [
+ {"base":"https://drain2111.isweb.co.kr", "outdir":"regions",    "theme":THEME_BLUE,  "regions":REGIONS_2111},
+ {"base":"https://drain119.isweb.co.kr",  "outdir":"regions119", "theme":THEME_GREEN, "regions":REGIONS_119},
 ]
 
 SERVICES = [
@@ -110,7 +154,7 @@ TEMPLATE = r"""<!DOCTYPE html>
 {"@type":"Question","name":"%%NAME%%에서 누수탐지도 되나요?","acceptedAnswer":{"@type":"Answer","text":"네. %%NAME%% 전역에서 청음·열화상 장비로 벽체·바닥·수도배관 누수를 파괴 없이 찾아 보수합니다."}}]}
 </script>
 <style>
-:root{--blue:#0b63d6;--blue-d:#073e8a;--blue-l:#e8f1fd;--ink:#0f1b2d;--gray:#5b6b80;--line:#e3e9f1;--bg:#f5f8fc}
+:root{--blue:%%CPRIM%%;--blue-d:%%CDARK%%;--blue-l:%%CLIGHT%%;--ink:#0f1b2d;--gray:#5b6b80;--line:#e3e9f1;--bg:#f5f8fc}
 *{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}
 body{font-family:'Noto Sans KR',sans-serif;color:var(--ink);background:#fff;line-height:1.7;font-size:18px}
 img{max-width:100%;display:block}a{text-decoration:none;color:inherit}
@@ -138,7 +182,7 @@ section{padding:58px 0}
 @media(max-width:760px){.title{font-size:28px}.lead{font-size:17px}}
 .area{background:var(--blue-l)}
 .dongs{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;max-width:900px;margin:0 auto}
-.dong{background:#fff;border:1px solid #cfe0f7;color:var(--blue-d);font-weight:700;padding:10px 18px;border-radius:50px;font-size:17px}
+.dong{background:#fff;border:1px solid rgba(11,99,214,.25);color:var(--blue-d);font-weight:700;padding:10px 18px;border-radius:50px;font-size:17px}
 .svc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
 .svc{border:1px solid var(--line);border-radius:18px;overflow:hidden;background:#fff;box-shadow:0 6px 22px rgba(15,27,45,.05)}
 .svc img{height:190px;width:100%;object-fit:cover}.svc .b{padding:20px}.svc h3{font-size:24px;margin-bottom:6px}.svc p{color:var(--gray);font-size:16px}
@@ -246,46 +290,43 @@ document.querySelectorAll('.faq-q').forEach(q=>q.addEventListener('click',()=>q.
 </html>
 """
 
-def build_services():
+def build_services(name):
     out=[]
     for img,h,p in SERVICES:
-        out.append('<div class="svc"><img src="%s%s" alt="%%%%NAME%%%% %s 작업 - 국민설비"><div class="b"><h3>%s</h3><p>%s</p></div></div>'%(CDN,img,h,h,p))
+        out.append('<div class="svc"><img src="%s%s" alt="%s %s 작업 - 국민설비"><div class="b"><h3>%s</h3><p>%s</p></div></div>'%(CDN,img,name,h,h,p))
     return "\n".join(out)
 
-SERVICES_HTML = build_services()
-
-def render(r):
-    canonical = "%s/%s" % (BASE, r["slug"])
+def render(r, site):
+    base = site["base"]; theme = site["theme"]
+    canonical = "%s/%s" % (base, r["slug"])
     dong_badges = "".join('<span class="dong">%s</span>'%d for d in r["dongs"])
     dongs_text = ", ".join(r["dongs"])
-    area_served = ",".join('{"@type":"City","name":"%s"}'%d for d in ([r["full"]]+r["dongs"]))
-    svc = SERVICES_HTML.replace("%%NAME%%", r["name"])
+    area_served = ",".join('{"@type":"City","name":"%s"}'%c for c in ([r["full"]]+r["dongs"]))
     html = TEMPLATE
     repl = {
-        "%%NAME%%": r["name"], "%%FULL%%": r["full"], "%%CLUSTER%%": r["cluster"],
-        "%%INTRO%%": r["intro"], "%%CDN%%": CDN, "%%PHONE%%": PHONE,
-        "%%PHONE_INTL%%": "10-"+PHONE.split("-",1)[1], "%%CANONICAL%%": canonical,
-        "%%HUB%%": HUB_URL, "%%DONG_BADGES%%": dong_badges, "%%DONGS_TEXT%%": dongs_text,
-        "%%AREA_SERVED%%": area_served, "%%SERVICES%%": svc,
+        "%%CDN%%": CDN, "%%PHONE%%": PHONE, "%%PHONE_INTL%%": PHONE_INTL,
+        "%%CANONICAL%%": canonical, "%%HUB%%": base + "/",
+        "%%NAME%%": r["name"], "%%FULL%%": r["full"], "%%CLUSTER%%": r["cluster"], "%%INTRO%%": r["intro"],
+        "%%DONG_BADGES%%": dong_badges, "%%DONGS_TEXT%%": dongs_text, "%%AREA_SERVED%%": area_served,
+        "%%SERVICES%%": build_services(r["name"]),
+        "%%CPRIM%%": theme["prim"], "%%CDARK%%": theme["dark"], "%%CLIGHT%%": theme["light"],
     }
-    # SERVICES 안의 %%NAME%% 는 이미 치환됨; 나머지 토큰 치환
     for k,v in repl.items():
         html = html.replace(k,v)
-    return html, canonical
+    return html
 
 def main():
-    os.makedirs(OUT_DIR, exist_ok=True)
-    enc="utf-8"
-    made=[]
-    for r in REGIONS:
-        html, canonical = render(r)
-        path=os.path.join(OUT_DIR, r["slug"]+".html")
-        with open(path,"w",encoding=enc) as f:
-            f.write(html)
-        made.append((r["name"], r["slug"], canonical))
-    print("생성 완료: %d개" % len(made))
-    for name,slug,c in made:
-        print("  %-6s -> regions/%s.html   (%s)" % (name, slug, c))
+    total=0
+    for site in SITES:
+        outdir=os.path.join(ROOT, site["outdir"])
+        os.makedirs(outdir, exist_ok=True)
+        print("[%s] -> %s/" % (site["base"], site["outdir"]))
+        for r in site["regions"]:
+            with open(os.path.join(outdir, r["slug"]+".html"),"w",encoding="utf-8") as f:
+                f.write(render(r, site))
+            print("   %-8s %s/%s" % (r["name"], site["base"], r["slug"]))
+            total+=1
+    print("총 %d개 생성 완료" % total)
 
 if __name__=="__main__":
     main()
