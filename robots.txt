@@ -9,4 +9,4 @@ Allow: /
 User-agent: Googlebot
 Allow: /
 
-Sitemap: https://example.com/sitemap.xml
+Sitemap: https://drain2111.isweb.co.kr/sitemap.xml
